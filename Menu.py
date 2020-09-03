@@ -17,7 +17,7 @@ class BaseWindow(tk.Tk):
             page = P(base, self)
 
             self.pages[P] = page
-            page.config(background='red')
+            page.config(background='#F0EFF4')
 
             page.grid(row=0, column=0, sticky="nsew")
 
