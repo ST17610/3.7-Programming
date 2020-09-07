@@ -7,34 +7,44 @@ class BaseWindow(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         self.geometry("640x480")
         self.title("Voorhoeve's Takeaway")
-        base = tk.Frame(self)
+        self.base = tk.Frame(self)
         
-        base.pack(side="top", fill="both", expand=True)
-        base.grid_rowconfigure(0, weight=1)
-        base.grid_columnconfigure(0, weight=1)
+        self.base.pack(side="top", fill="both", expand=True)
+        self.base.grid_rowconfigure(0, weight=1)
+        self.base.grid_columnconfigure(0, weight=1)
         
         self.pages = {}
         for P in (Food, Drink, Dessert, Cart):
-            page = P(base, self)
+            self.page = P(self.base, self)
             
 
-            self.pages[P] = page
+            self.pages[P] = self.page
             
-            page.grid(row=0, column=0, sticky="nsew")
+            self.page.grid(row=0, column=0, sticky="nsew")
 
         self.show_page(Food)
+        print(self.pages)
         
     def show_page(self, page_num):
-        page = self.pages[page_num]
-        page.tkraise()
+        self.page = self.pages[page_num]
+        self.page.tkraise()
+    
+    def create_quantity(self,food):
+        self.page = Quantity(self.base, self, food)
+        self.pages[Quantity] = self.page
+        self.page.grid(row=0, column=0, sticky="nsew")
+        self.page.tkraise()
+        
+
+        
 
 class BasePage():
     file = open("Items.json","r")
     item_data = json.load(file)
+    file.close()
     
     def __init__(self, parent, BaseWindow, name):
-        
-        
+       
         parent.header = tk.Frame(parent, bg="#E94F37", height = 50)
         parent.nav = tk.Frame(parent, bg="#44BBA4")
         parent.menubox = tk.Frame(parent, bg="#F0EFF4")
@@ -69,7 +79,6 @@ class BasePage():
         parent.button4.grid(row=3, column=0, sticky="nsew")
         
         parent.box=[]
-        parent.item_box=[]
         i = 0
         if name in BasePage.item_data.keys():
             for food in BasePage.item_data[name].keys():
@@ -78,9 +87,11 @@ class BasePage():
                 parent.box.append(tk.Button(parent.menubox,
                                           bg="#F0EFF4",
                                           highlightthickness=0,
-                                          text=food))
+                                          text=food,
+                                          command=lambda food=food :BaseWindow.create_quantity(food)))
                 parent.box[i].grid(row=i, column=0, sticky="nsew")
                 i+=1
+        
         
         
 class Food(tk.Frame):
@@ -102,18 +113,70 @@ class Dessert(tk.Frame):
         BasePage(self, BaseWindow, "Dessert")
         
 
+class Quantity(tk.Frame):
+    def __init__(self, parent, BaseWindow, food):
+        tk.Frame.__init__(self,parent)
+        BasePage(self, BaseWindow, "Quantity")
+        self.menubox.columnconfigure(0, weight=1)
+        self.menubox.rowconfigure(0, weight=1)
+        self.menubox.rowconfigure(1, weight=1)
+        self.menubox.rowconfigure(2, weight=1)
+        self.menubox.rowconfigure(3, weight=1)
+        self.menubox.rowconfigure(4, weight=1)
+        
+        self.num = 0
+        self.food_label = tk.Label(self.menubox, text=food)
+        self.num_label = tk.Label(self.menubox, text=self.num)
+        def int_button_control(self, state):
+            if state == '+':
+                self.num += 1 
+            if state == '-':
+                self.num -= 1 
+            self.num_label.configure(text=self.num)
+                
+    
+        self.up = tk.Button(self.menubox, text="↑",command=lambda:int_button_control(self,'+'))
+        self.down = tk.Button(self.menubox, text="↓", command=lambda:int_button_control(self, '-'))
+        self.enter = tk.Button(self.menubox, text="Enter", command=lambda:Cart.add_cart(BaseWindow.pages[Cart], food, self.num))
+        
+        self.food_label.grid(row=0, column=0, sticky="nsew")
+        self.up.grid(row=1, column=0, sticky="nsew")
+        self.num_label.grid(row=2, column=0, sticky="nsew")
+        self.down.grid(row=3, column=0, sticky="nsew")
+        self.enter.grid(row=4, column=0, sticky="nsew")
+        
 
 class Cart(tk.Frame):
     def __init__(self, parent, BaseWindow):
         tk.Frame.__init__(self,parent)
         BasePage(self, BaseWindow, "Cart")
+        self.cart = []
+        self.loc = 0
+        
+    def add_cart(self, food, num):
+        for i in range(num):
+            #self.cart.append(Items(food))
+            self.menubox.columnconfigure(0, weight=1)
+            self.menubox.rowconfigure(self.loc, weight=1)
+            self.box.append(tk.Button(self.menubox,
+                                        bg="#F0EFF4",
+                                        highlightthickness=0,
+                                        text=f"{food}"))
+                                        #command=lambda food=food :BaseWindow.create_quantity(food)))
+            self.box[self.loc].grid(row=self.loc, column=0, sticky="nsew")
+            print(self.box)
+            self.loc+=1
+            
+            
        
             
         
 class Items():
-    def __init__(self):
+    file = open("Items.json","r")
+    item_data = json.load(file)
+    file.close()
+    def __init__(self, item):
         pass
-        
 
         
 if __name__ == "__main__":
