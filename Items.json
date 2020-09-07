@@ -1,0 +1,64 @@
+[
+{
+	"Summary": [{
+		"Total Items":0,
+		"Food Items":0,
+		"Drink Items":0,
+		"Dessert Items":0
+        }]
+},
+{
+    "Food":[
+    {
+    "Item":[{
+        "ID":1,
+        "Name":"Burger"
+        }],
+    "Item":[{
+        "ID":2,
+        "Name":"Pizza"
+        }],
+    "Item":[{
+        "ID":3,
+        "Name":"Potato Salid"
+        }]
+    }
+    ]
+},
+{
+    "Drink":[
+    {
+    "Item":[{
+        "ID":1,
+        "Name":"Coke"
+        ],
+    "Item":[{
+        "ID":2,
+        "Name":"Water"
+        }],
+    "Item":[{
+        "ID":3,
+        "Name":"Cofee"
+        }]
+    }
+    ]
+},
+{
+    "Dessert":[{
+    {
+    "Item":[{
+        "ID":1,
+        "Name":"Eclair"
+        }],
+    "Item":[{
+        "ID":2,
+        "Name":"Teramisu"
+        }],
+    "Item":[{
+        "ID":3,
+        "Name":"Ice-Cream"
+        }]
+    }
+    ]
+}
+]
