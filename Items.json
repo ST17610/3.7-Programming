@@ -1,50 +1,58 @@
-[
-   {
-      "Food":{
-         "Burger":{
-            "ID":1,
-            "Price":5
-         },
-         "Pizza":{
-            "ID":2,
-            "Price":5
-         },
-         "Potato Salid":{
-            "ID":3,
-            "Price":5
-         }
+{
+   "Food":{
+      "Burger":{
+         "ID":1,
+         "Price":5,
+         "Eta":4
+      },
+      "Fish":{
+         "ID":1,
+         "Price":5,
+         "Eta":4
+      },
+      "Pizza":{
+         "ID":2,
+         "Price":5,
+         "Eta":4
+      },
+      "Potato Salid":{
+         "ID":3,
+         "Price":5,
+         "Eta":4
       }
    },
-   {
-      "Drink":{
-         "Coke":{
-            "ID":1,
-            "Price":5
-         },
-         "Water":{
-            "ID":2,
-            "Price":5
-         },
-         "Cofee":{
-            "ID":3,
-            "Price":5
-         }
+   "Drink":{
+      "Coke":{
+         "ID":1,
+         "Price":5,
+         "Eta":4
+      },
+      "Water":{
+         "ID":2,
+         "Price":5,
+         "Eta":4
+      },
+      "Cofee":{
+         "ID":3,
+         "Price":5,
+         "Eta":4
       }
    },
-   {
-      "Dessert":{
-         "Eclair":{
-            "ID":1,
-            "Price":5
-         },
-         "Teramisu":{
-            "ID":2,
-            "Price":5
-         },
-         "Ice-Cream":{
-            "ID":3,
-            "Price":5
-         }
+   "Dessert":{
+      "Eclair":{
+         "ID":1,
+         "Price":5,
+         "Eta":4
+      },
+      "Teramisu":{
+         "ID":2,
+         "Price":5,
+         "Eta":4
+      },
+      "Ice-Cream":{
+         "ID":3,
+         "Price":5,
+         "Eta":4
       }
    }
-]
+}
