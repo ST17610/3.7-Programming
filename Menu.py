@@ -7,36 +7,26 @@ class BaseWindow(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         self.geometry("640x480")
         self.title("Voorhoeve's Takeaway")
-        self.base = tk.Frame(self)
         
+        self.base = tk.Frame(self)
         self.base.pack(side="top", fill="both", expand=True)
         self.base.grid_rowconfigure(0, weight=1)
         self.base.grid_columnconfigure(0, weight=1)
         
         self.pages = {}
-        for P in (Food, Drink, Dessert, Cart):
+        for P in (Food, Drink, Dessert, Cart, Quantity):
+            
             self.page = P(self.base, self)
-            
-
             self.pages[P] = self.page
-            
             self.page.grid(row=0, column=0, sticky="nsew")
 
         self.show_page(Food)
-        #print(self.pages)
         
     def show_page(self, page_num):
         self.page = self.pages[page_num]
         self.page.tkraise()
     
-    def create_quantity(self,food):
-        self.page = Quantity(self.base, self, food)
-        self.pages[Quantity] = self.page
-        self.page.grid(row=0, column=0, sticky="nsew")
-        self.page.tkraise()
-        
 
-        
 
 class BasePage():
     file = open("Items.json","r")
@@ -44,8 +34,15 @@ class BasePage():
     file.close()
     
     def __init__(self, parent, BaseWindow, name):
+        FONT = ("Comic Sans", "20")
        
-        parent.header = tk.Frame(parent, bg="#E94F37", height = 50)
+        parent.header = tk.Frame(parent, bg="#E94F37",)
+        parent.Label = tk.Label(parent.header, 
+                                text="Reinhard's Diner",
+                                font=FONT,
+                                bg="#E94F37",
+                                height = 2).pack(anchor='center')
+        
         parent.nav = tk.Frame(parent, bg="#44BBA4")
         parent.menubox = tk.Frame(parent, bg="#F0EFF4")
         parent.footer = tk.Frame(parent, bg="#3F88C5", height = 35)
@@ -58,45 +55,56 @@ class BasePage():
         parent.columnconfigure(1, weight=1)
         parent.rowconfigure(1, weight=1)
         
-        parent.label = tk.Label(parent.menubox, text=name)
-        #parent.label.grid(column=1, row=0, pady=10, padx=10)
         
-        parent.button1 = tk.Button(parent.nav, text="Food",bg="#F0EFF4",
-                                   highlightthickness=0,
-                                   pady=20,
-                                   command=lambda: BaseWindow.show_page(Food))
+        parent.food = tk.Button(parent.nav, 
+                                text="Food",
+                                font = FONT,
+                                bg="#F0EFF4",
+                                highlightthickness=0,
+                                pady=20,
+                                command=lambda: BaseWindow.show_page(Food))
 
-        parent.button2 = tk.Button(parent.nav, text="Drink",bg="#F0EFF4",
-                                   highlightthickness=0,
-                                   pady=20,
-                                   command=lambda: BaseWindow.show_page(Drink))
+        parent.drink = tk.Button(parent.nav, 
+                                 text="Drink",
+                                 font = FONT,
+                                 bg="#F0EFF4",
+                                 highlightthickness=0,
+                                 pady=20,
+                                 command=lambda: BaseWindow.show_page(Drink))
 
-        parent.button3 = tk.Button(parent.nav, text="Dessert",bg="#F0EFF4",
+        parent.dessert = tk.Button(parent.nav, 
+                                   text="Dessert",
+                                   font = FONT,
+                                   bg="#F0EFF4",
                                    highlightthickness=0,
                                    pady=20,
                                    command=lambda: BaseWindow.show_page(Dessert))
 
-        parent.button4 = tk.Button(parent.nav, text="Cart",bg="#F0EFF4",
-                                   highlightthickness=0,
-                                   pady=20,
-                                   command=lambda: BaseWindow.show_page(Cart))
+        parent.cart = tk.Button(parent.nav, 
+                                text="Cart",
+                                font = FONT,
+                                bg="#F0EFF4",
+                                highlightthickness=0,
+                                pady=20,
+                                command=lambda: BaseWindow.show_page(Cart))
         
-        parent.button1.grid(row=0, column=0, sticky="nsew")
-        parent.button2.grid(row=1, column=0, sticky="nsew")
-        parent.button3.grid(row=2, column=0, sticky="nsew")
-        parent.button4.grid(row=3, column=0, sticky="nsew")
+        parent.food.grid(row=0, column=0, sticky="nsew")
+        parent.drink.grid(row=1, column=0, sticky="nsew")
+        parent.dessert.grid(row=2, column=0, sticky="nsew")
+        parent.cart.grid(row=3, column=0, sticky="nsew")
         
         parent.box=[]
         i = 0
         if name in BasePage.item_data.keys():
-            for food in BasePage.item_data[name].keys():
+            for obj in BasePage.item_data[name].keys():
                 parent.menubox.columnconfigure(0, weight=1)
                 parent.menubox.rowconfigure(i, weight=1)
                 parent.box.append(tk.Button(parent.menubox,
+                                            font=FONT,
                                             bg="#F0EFF4",
                                             highlightthickness=0,
-                                            text=food,
-                                            command=lambda food=food :BaseWindow.create_quantity(food)))
+                                            text=f'{obj} - Price: ${BasePage.item_data[name][obj]["Price"]}',
+                                            command=lambda obj=obj:Quantity.food_page(BaseWindow.pages[Quantity], BaseWindow, obj)))
                 parent.box[i].grid(row=i, column=0, sticky="nsew")
                 i+=1
         
@@ -122,23 +130,31 @@ class Dessert(tk.Frame):
         
 
 class Quantity(tk.Frame):
-    def __init__(self, parent, BaseWindow, food):
+    def __init__(self, parent, BaseWindow):
         tk.Frame.__init__(self,parent)
         BasePage(self, BaseWindow, "Quantity")
-        self.menubox.columnconfigure(0, weight=1)
-        self.menubox.rowconfigure(0, weight=1)
-        self.menubox.rowconfigure(1, weight=1)
-        self.menubox.rowconfigure(2, weight=1)
-        self.menubox.rowconfigure(3, weight=1)
-        self.menubox.rowconfigure(4, weight=1)
+       
+    def food_page(self, BaseWindow, food):
+        FONT = ("Comic Sans", "18")
+        BaseWindow.show_page(Quantity)
         
+        self.menubox.columnconfigure(0, weight=1)
+        for i in range(4):
+            self.menubox.rowconfigure(i, weight=1)
+
         self.num = 0
-        self.food_label = tk.Label(self.menubox, text=food,
+        self.food_label = tk.Label(self.menubox, 
+                                   text=food,
+                                   font=FONT,
                                    bg="#F0EFF4",
                                    highlightthickness=0,)
-        self.num_label = tk.Label(self.menubox, text=self.num,
+        
+        self.num_label = tk.Label(self.menubox, 
+                                  font=FONT,
+                                  text=self.num,
                                   bg="#F0EFF4",
                                   highlightthickness=0,)
+        
         def int_button_control(self, state):
             if state == '+':
                 self.num += 1 
@@ -147,15 +163,26 @@ class Quantity(tk.Frame):
             self.num_label.configure(text=self.num)
                 
     
-        self.up = tk.Button(self.menubox, text="↑",bg="#F0EFF4",
+        self.up = tk.Button(self.menubox, 
+                            text="↑",
+                            font=FONT,
+                            bg="#F0EFF4",
                             highlightthickness=0,
                             command=lambda:int_button_control(self,'+'))
-        self.down = tk.Button(self.menubox, text="↓",bg="#F0EFF4",
+        
+        self.down = tk.Button(self.menubox,
+                              text="↓",
+                              font=FONT,
+                              bg="#F0EFF4",
                               highlightthickness=0,
                               command=lambda:int_button_control(self, '-'))
-        self.enter = tk.Button(self.menubox, text="Enter",bg="#F0EFF4",
+        
+        self.enter = tk.Button(self.menubox, 
+                               text="Enter",
+                               font=FONT,
+                               bg="#F0EFF4",
                                highlightthickness=0,
-                               command=lambda:Cart.add_cart(BaseWindow.pages[Cart], food, self.num))
+                               command=lambda:Cart.add_cart(BaseWindow.pages[Cart], BaseWindow, food, self.num))
         
         self.food_label.grid(row=0, column=0, sticky="nsew")
         self.up.grid(row=1, column=0, sticky="nsew")
@@ -168,34 +195,40 @@ class Cart(tk.Frame):
     def __init__(self, parent, BaseWindow):
         tk.Frame.__init__(self,parent)
         BasePage(self, BaseWindow, "Cart")
+        FONT = ("Comic Sans", "18")
+        self.cart = {}
         self.checkout = tk.Button(self.footer,
+                                  font=FONT,
                                   bg="#F0EFF4",
                                   highlightthickness=0,
                                   text="Checkout",
-                                  command=lambda:map(self.cart.print_info(), self.cart))
-        self.checkout.grid(row=0 ,column=0, sticky="nsew")
-        self.cart = []
-        self.loc = 0
+                                  command=lambda:print(self.cart ))
+        self.checkout.grid(row=0, column=0, sticky="nsew")
         
-    def add_cart(self, food, num):
-        self.Items(food, num)
-        self.menubox.columnconfigure(0, weight=1)
-        self.menubox.rowconfigure(self.loc, weight=1)
-        self.box.append(tk.Button(self.menubox,
-                                  bg="#F0EFF4",
-                                  highlightthickness=0,
-                                  text=f"{food} Quantity : {num}"))
-                                    #command=lambda food=food :BaseWindow.create_quantity(food)))
-        self.box[self.loc].grid(row=self.loc, column=0, sticky="nsew")
-        print(self.cart)
-        self.loc+=1
-    
-    def Items(self, food, num):
-        for i in range(num):
-            self.cart.append(Items(food))
-       
+        self.local_menubox = 0
+        
+    def add_cart(self, BaseWindow, food, num):
+        FONT = ("Comic Sans", "18")
+        
+        BaseWindow.show_page(Cart)
+        
+        
+        if food not in self.cart.keys():
+            self.menubox.columnconfigure(0, weight=1)
+            self.menubox.rowconfigure(self.local_menubox, weight=1)
+            self.cart.update({food : [tk.Button(self.menubox,
+                                      bg="#F0EFF4",
+                                      font=FONT,
+                                      highlightthickness=0,
+                                      text=f"{food} Quantity : {num}"), num]})
+            self.cart[food][0].grid(row=self.local_menubox, column=0, sticky="nsew")
+            self.local_menubox+=1
+        else:
+            num+=self.cart[food][1]
+            self.cart[food][1] = num
+            self.cart[food][0].config(text=f"{food} Quantity : {num}")
             
-        
+                   
 class Items():
     file = open("Items.json","r")
     item_data = json.load(file)
@@ -204,12 +237,13 @@ class Items():
         for name in Items.item_data.keys():
             if item in Items.item_data[name].keys():
                 self.info = Items.item_data[name][item]
+                #self.print_info()
                 
     def print_info(self):
         print(self.info)
         
 
         
-if __name__ == "__main__":
-    root = BaseWindow()
-    root.mainloop()
+
+root = BaseWindow()
+root.mainloop()
