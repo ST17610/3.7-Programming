@@ -1,11 +1,16 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import tkinter as tk
+from functools import partial
+from random import randint
 import json
 
 
 class BaseWindow(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
-        self.geometry("640x480")
+        self.geometry("1000x700")
         self.title("Voorhoeve's Takeaway")
         
         self.base = tk.Frame(self)
@@ -29,12 +34,8 @@ class BaseWindow(tk.Tk):
 
 
 class BasePage():
-    file = open("Items.json","r")
-    item_data = json.load(file)
-    file.close()
-    
     def __init__(self, parent, BaseWindow, name):
-        FONT = ("Comic Sans", "20")
+        FONT = ("Arab", "20")
        
         parent.header = tk.Frame(parent, bg="#E94F37",)
         parent.Label = tk.Label(parent.header, 
@@ -95,15 +96,15 @@ class BasePage():
         
         parent.box=[]
         i = 0
-        if name in BasePage.item_data.keys():
-            for obj in BasePage.item_data[name].keys():
+        if name in item_data.keys():
+            for obj in item_data[name].keys():
                 parent.menubox.columnconfigure(0, weight=1)
                 parent.menubox.rowconfigure(i, weight=1)
                 parent.box.append(tk.Button(parent.menubox,
                                             font=FONT,
                                             bg="#F0EFF4",
                                             highlightthickness=0,
-                                            text=f'{obj} - Price: ${BasePage.item_data[name][obj]["Price"]}',
+                                            text=f'{obj} - Price: ${item_data[name][obj]["Price"]}',
                                             command=lambda obj=obj:Quantity.food_page(BaseWindow.pages[Quantity], BaseWindow, obj)))
                 parent.box[i].grid(row=i, column=0, sticky="nsew")
                 i+=1
@@ -135,7 +136,7 @@ class Quantity(tk.Frame):
         BasePage(self, BaseWindow, "Quantity")
        
     def food_page(self, BaseWindow, food):
-        FONT = ("Comic Sans", "18")
+        FONT = ("Arab", "18")
         BaseWindow.show_page(Quantity)
         
         self.menubox.columnconfigure(0, weight=1)
@@ -181,6 +182,7 @@ class Quantity(tk.Frame):
                                text="Enter",
                                font=FONT,
                                bg="#F0EFF4",
+                               height=2,
                                highlightthickness=0,
                                command=lambda:Cart.add_cart(BaseWindow.pages[Cart], BaseWindow, food, self.num))
         
@@ -195,27 +197,27 @@ class Cart(tk.Frame):
     def __init__(self, parent, BaseWindow):
         tk.Frame.__init__(self,parent)
         BasePage(self, BaseWindow, "Cart")
-        FONT = ("Comic Sans", "18")
+        FONT = ("Arab", "18")
         self.cart = {}
         self.checkout = tk.Button(self.footer,
                                   font=FONT,
                                   bg="#F0EFF4",
                                   highlightthickness=0,
                                   text="Checkout",
-                                  command=lambda:print(self.cart ))
+                                  command=lambda: Checkout_Reset(self))
         self.checkout.grid(row=0, column=0, sticky="nsew")
         
         self.local_menubox = 0
         
     def add_cart(self, BaseWindow, food, num):
-        FONT = ("Comic Sans", "18")
+        FONT = ("Arab", "18")
         
         BaseWindow.show_page(Cart)
         
         
         if food not in self.cart.keys():
             self.menubox.columnconfigure(0, weight=1)
-            self.menubox.rowconfigure(self.local_menubox, weight=1)
+            #self.menubox.rowconfigure(self.local_menubox, weight=1)
             self.cart.update({food : [tk.Button(self.menubox,
                                       bg="#F0EFF4",
                                       font=FONT,
@@ -228,15 +230,46 @@ class Cart(tk.Frame):
             self.cart[food][1] = num
             self.cart[food][0].config(text=f"{food} Quantity : {num}")
             
+        print(self.cart)
+        
+class Checkout_Reset():
+    def __init__(self, partner):
+        self.cr_box = tk.Toplevel()
+        self.cr_box.geometry("300x200")
+        self.cr_box.title("Checkout")
+        self.cr_box.grab_set()
+        self.cr_box.protocol('WM_DELETE_WINDOW', partial(self.close_help, partner))
+        
+        self.id = randint(0,300)
+        self.price = 0
+        
+        self.cr_box.Label = tk.Label(self.cr_box, 
+                                text=f"ID - {self.id}",
+                                font=("Arab", "18"),
+                                height = 2).pack(anchor='center')
+        for obj in partner.cart:
+            for name in item_data.keys():
+                if obj in item_data[name].keys():
+                    for i in range (partner.cart[obj][1]):
+                        self.price+=item_data[name][obj]["Price"]
+                    partner.cart[obj][0].destroy()
+                        
+        tk.Label(self.cr_box, 
+                 text=f"Total Price - ${self.price}",
+                 font=("Arab", "18"),
+                    height = 2).pack(anchor='center')
+
+    def close_help(self, partner):
+        partner.cart = {}
+        self.cr_box.grab_release()  
+        self.cr_box.destroy() 
                    
 class Items():
-    file = open("Items.json","r")
-    item_data = json.load(file)
-    file.close()
+    
     def __init__(self, item):
-        for name in Items.item_data.keys():
-            if item in Items.item_data[name].keys():
-                self.info = Items.item_data[name][item]
+        for name in item_data.keys():
+            if item in item_data[name].keys():
+                self.info = item_data[name][item]
                 #self.print_info()
                 
     def print_info(self):
@@ -244,6 +277,8 @@ class Items():
         
 
         
-
+file = open("Items.json","r")
+item_data = json.load(file)
+file.close()
 root = BaseWindow()
 root.mainloop()
