@@ -7,10 +7,10 @@
       },
       "Pizza":{
          "ID":2,
-         "Price":5,
+         "Price":10,
          "Eta":4
       },
-      "Potato Salid":{
+      "Potato Salad":{
          "ID":3,
          "Price":5,
          "Eta":4
@@ -24,10 +24,10 @@
       },
       "Water":{
          "ID":2,
-         "Price":5,
+         "Price":1,
          "Eta":4
       },
-      "Cofee":{
+      "Coffee":{
          "ID":3,
          "Price":5,
          "Eta":4
@@ -39,9 +39,9 @@
          "Price":5,
          "Eta":4
       },
-      "Teramisu":{
+      "Tiramisu":{
          "ID":2,
-         "Price":5,
+         "Price":7,
          "Eta":4
       },
       "Ice-Cream":{
