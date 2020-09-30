@@ -133,65 +133,85 @@ class Dessert(tk.Frame):
 class Quantity(tk.Frame):
     def __init__(self, parent, BaseWindow):
         tk.Frame.__init__(self,parent)
-        BasePage(self, BaseWindow, "Quantity")
+        #BasePage(self, BaseWindow, "Quantity")
        
     def food_page(self, BaseWindow, food):
         FONT = ("Arab", "18")
-        BaseWindow.show_page(Quantity)
+        self.cr_box = tk.Toplevel()
+        self.cr_box.geometry("300x400")
+        self.cr_box.title("Quantity")
+        self.cr_box.grab_set()
+        self.cr_box.protocol('WM_DELETE_WINDOW', partial(self.close_quantity))
         
-        self.menubox.columnconfigure(0, weight=1)
+        
+        self.cr_box.columnconfigure(0, weight=1)
         for i in range(4):
-            self.menubox.rowconfigure(i, weight=1)
+            self.cr_box.rowconfigure(i, weight=1)
 
+        self.tknum = tk.IntVar()
         self.num = 0
-        self.food_label = tk.Label(self.menubox, 
+        self.food_label = tk.Label(self.cr_box, 
                                    text=food,
                                    font=FONT,
                                    bg="#F0EFF4",
                                    highlightthickness=0,)
         
-        self.num_label = tk.Label(self.menubox, 
+        """self.num_label = tk.Label(self.cr_box, 
                                   font=FONT,
                                   text=self.num,
                                   bg="#F0EFF4",
-                                  highlightthickness=0,)
+                                  highlightthickness=0,)"""
         
         def int_button_control(self, state):
             if state == '+':
-                self.num += 1 
+                self.num = self.tknum.get()+1
+                self.tknum.set(self.num)
             if state == '-':
-                self.num -= 1 
-            self.num_label.configure(text=self.num)
+                self.num = self.tknum.get()-1 
+                self.tknum.set(self.num)
+            
                 
     
-        self.up = tk.Button(self.menubox, 
+        self.up = tk.Button(self.cr_box, 
                             text="↑",
                             font=FONT,
                             bg="#F0EFF4",
                             highlightthickness=0,
                             command=lambda:int_button_control(self,'+'))
         
-        self.down = tk.Button(self.menubox,
+        self.down = tk.Button(self.cr_box,
                               text="↓",
                               font=FONT,
                               bg="#F0EFF4",
                               highlightthickness=0,
                               command=lambda:int_button_control(self, '-'))
         
-        self.enter = tk.Button(self.menubox, 
+        
+        
+        self.entry = tk.Entry(self.cr_box, 
+                              textvariable=self.tknum,
+                              font=FONT,
+                              bg="#F0EFF4",
+                              highlightthickness=0)
+        
+        self.enter = tk.Button(self.cr_box, 
                                text="Enter",
                                font=FONT,
                                bg="#F0EFF4",
                                height=2,
                                highlightthickness=0,
-                               command=lambda:Cart.add_cart(BaseWindow.pages[Cart], BaseWindow, food, self.num))
+                               command=lambda:(self.close_quantity(),
+                                               Cart.add_cart(BaseWindow.pages[Cart], BaseWindow, food, self.tknum.get())))
         
         self.food_label.grid(row=0, column=0, sticky="nsew")
         self.up.grid(row=1, column=0, sticky="nsew")
-        self.num_label.grid(row=2, column=0, sticky="nsew")
+        self.entry.grid(row=2, column=0, sticky="nsew")
         self.down.grid(row=3, column=0, sticky="nsew")
         self.enter.grid(row=4, column=0, sticky="nsew")
-        
+    
+    def close_quantity(self):
+        self.cr_box.grab_release()  
+        self.cr_box.destroy() 
 
 class Cart(tk.Frame):
     def __init__(self, parent, BaseWindow):
@@ -230,7 +250,7 @@ class Cart(tk.Frame):
             self.cart[food][1] = num
             self.cart[food][0].config(text=f"{food} Quantity : {num}")
             
-        print(self.cart)
+        #print(self.cart)
         
 class Checkout_Reset():
     def __init__(self, partner):
@@ -238,7 +258,7 @@ class Checkout_Reset():
         self.cr_box.geometry("300x200")
         self.cr_box.title("Checkout")
         self.cr_box.grab_set()
-        self.cr_box.protocol('WM_DELETE_WINDOW', partial(self.close_help, partner))
+        self.cr_box.protocol('WM_DELETE_WINDOW', partial(self.close_checkout, partner))
         
         self.id = randint(0,300)
         self.price = 0
@@ -254,29 +274,19 @@ class Checkout_Reset():
                         self.price+=item_data[name][obj]["Price"]
                     partner.cart[obj][0].destroy()
                         
-        tk.Label(self.cr_box, 
+        tk.Label(self.cr_box,
                  text=f"Total Price - ${self.price}",
                  font=("Arab", "18"),
                     height = 2).pack(anchor='center')
 
-    def close_help(self, partner):
+    def close_checkout(self, partner):
+        all_orders.append(partner.cart)
         partner.cart = {}
+        print(all_orders)
         self.cr_box.grab_release()  
         self.cr_box.destroy() 
-                   
-class Items():
-    
-    def __init__(self, item):
-        for name in item_data.keys():
-            if item in item_data[name].keys():
-                self.info = item_data[name][item]
-                #self.print_info()
-                
-    def print_info(self):
-        print(self.info)
-        
 
-        
+all_orders = []
 file = open("Items.json","r")
 item_data = json.load(file)
 file.close()
