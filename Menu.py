@@ -1,294 +1,346 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
-import tkinter as tk
-from functools import partial
-from random import randint
-import json
+"""This Program is a basic menu gui for a takeaway shop."""
+import tkinter as tk  # This is the GUI framework
+from tkinter import messagebox  # This required to make the error message
+from functools import partial  # This gives us access to higher level function
+from random import randint  # This is used to generate the ID's for customers
+import json  # This allows python to handle json files
 
 
 class BaseWindow(tk.Tk):
+    """The BaseWindow class makes all the pages needed for my program and is
+    also the main Tk window."""
+
     def __init__(self, *args, **kwargs):
+        """Handles the creation of pages and tk window"""
         tk.Tk.__init__(self, *args, **kwargs)
         self.geometry("1000x700")
         self.title("Voorhoeve's Takeaway")
-        
+
+        """This is changing the settings of the window to allow resizing"""
         self.base = tk.Frame(self)
         self.base.pack(side="top", fill="both", expand=True)
         self.base.grid_rowconfigure(0, weight=1)
         self.base.grid_columnconfigure(0, weight=1)
-        
-        self.pages = {}
+
+        self.pages = {}  # Page Initializer
         for P in (Food, Drink, Dessert, Cart, Quantity):
-            
             self.page = P(self.base, self)
             self.pages[P] = self.page
             self.page.grid(row=0, column=0, sticky="nsew")
 
         self.show_page(Food)
-        
+
     def show_page(self, page_num):
+        '''This is used to switch between pages'''
         self.page = self.pages[page_num]
         self.page.tkraise()
-    
 
 
-class BasePage():
-    def __init__(self, parent, BaseWindow, name):
+class BasePage:
+    """BasePage is used to create a default page for Food, Drink, Dessert and
+    Cart """
+
+    def __init__(self, parent, basewindow, page):
         FONT = ("Arab", "20")
-       
-        parent.header = tk.Frame(parent, bg="#E94F37",)
-        parent.Label = tk.Label(parent.header, 
-                                text="Reinhard's Diner",
+
+        """Page Styling"""
+        parent.header = tk.Frame(parent, bg="#E94F37", )
+        parent.Label = tk.Label(parent.header,
+                                text="Voorhoeve's Takeaway",
                                 font=FONT,
                                 bg="#E94F37",
-                                height = 2).pack(anchor='center')
-        
+                                height=2).pack(anchor='center')
+
         parent.nav = tk.Frame(parent, bg="#44BBA4")
         parent.menubox = tk.Frame(parent, bg="#F0EFF4")
-        parent.footer = tk.Frame(parent, bg="#3F88C5", height = 35)
+        parent.footer = tk.Frame(parent, bg="#3F88C5", height=35)
 
         parent.header.grid(column=0, row=0, columnspan=2, sticky="nsew")
         parent.nav.grid(column=0, row=1, sticky="nsew")
         parent.menubox.grid(column=1, row=1, sticky="nsew")
         parent.footer.grid(column=0, row=3, columnspan=2, sticky="nsew")
 
-        parent.columnconfigure(1, weight=1)
-        parent.rowconfigure(1, weight=1)
-        
-        
-        parent.food = tk.Button(parent.nav, 
+        parent.columnconfigure(1, weight=1)  # Allow Resizing
+        parent.rowconfigure(1, weight=1)  # Allow Resizing
+
+        """Nav button creation"""
+        parent.food = tk.Button(parent.nav,
                                 text="Food",
-                                font = FONT,
+                                font=FONT,
                                 bg="#F0EFF4",
                                 highlightthickness=0,
                                 pady=20,
-                                command=lambda: BaseWindow.show_page(Food))
+                                command=lambda: basewindow.show_page(Food))
 
-        parent.drink = tk.Button(parent.nav, 
+        parent.drink = tk.Button(parent.nav,
                                  text="Drink",
-                                 font = FONT,
+                                 font=FONT,
                                  bg="#F0EFF4",
                                  highlightthickness=0,
                                  pady=20,
-                                 command=lambda: BaseWindow.show_page(Drink))
+                                 command=lambda: basewindow.show_page(Drink))
 
-        parent.dessert = tk.Button(parent.nav, 
+        parent.dessert = tk.Button(parent.nav,
                                    text="Dessert",
-                                   font = FONT,
+                                   font=FONT,
                                    bg="#F0EFF4",
                                    highlightthickness=0,
                                    pady=20,
-                                   command=lambda: BaseWindow.show_page(Dessert))
+                                   command=lambda: basewindow.show_page(Dessert))
 
-        parent.cart = tk.Button(parent.nav, 
+        parent.cart = tk.Button(parent.nav,
                                 text="Cart",
-                                font = FONT,
+                                font=FONT,
                                 bg="#F0EFF4",
                                 highlightthickness=0,
                                 pady=20,
-                                command=lambda: BaseWindow.show_page(Cart))
-        
+                                command=lambda: basewindow.show_page(Cart))
+
         parent.food.grid(row=0, column=0, sticky="nsew")
         parent.drink.grid(row=1, column=0, sticky="nsew")
         parent.dessert.grid(row=2, column=0, sticky="nsew")
         parent.cart.grid(row=3, column=0, sticky="nsew")
-        
-        parent.box=[]
+
+        parent.box = []  # This list holds all the item buttons
         i = 0
-        if name in item_data.keys():
-            for obj in item_data[name].keys():
-                parent.menubox.columnconfigure(0, weight=1)
-                parent.menubox.rowconfigure(i, weight=1)
-                parent.box.append(tk.Button(parent.menubox,
+        if page in item_data.keys():  # Finding the right data for this page
+            for item in item_data[page].keys():  # Looping through that data
+                parent.menubox.columnconfigure(0, weight=1)  # Allow Resizing
+                parent.menubox.rowconfigure(i, weight=1)  # Allow Resizing
+                parent.box.append(tk.Button(parent.menubox,  # Button creation
                                             font=FONT,
                                             bg="#F0EFF4",
                                             highlightthickness=0,
-                                            text=f'{obj} - Price: ${item_data[name][obj]["Price"]}',
-                                            command=lambda obj=obj:Quantity.food_page(BaseWindow.pages[Quantity], BaseWindow, obj)))
+                                            text=f'{item} - Price: ${item_data[page][item]["Price"]}',
+                                            command=lambda new_item=item: basewindow.pages[Quantity].food_quantity(basewindow,
+                                                                                                                   new_item)))
                 parent.box[i].grid(row=i, column=0, sticky="nsew")
-                i+=1
-        
-        
-        
-class Food(tk.Frame):
-    def __init__(self, parent, BaseWindow):
-        tk.Frame.__init__(self,parent)
-        BasePage(self, BaseWindow, "Food")
-        
+                i += 1
 
-        
+
+class Food(tk.Frame):
+    """Food page"""
+
+    def __init__(self, parent, basewindow):
+        tk.Frame.__init__(self, parent)  # Makes Tk Frame
+        BasePage(self, basewindow, "Food")  # Creates instance of basepage
+
+
 class Drink(tk.Frame):
-    def __init__(self, parent, BaseWindow):
-        tk.Frame.__init__(self,parent)
-        BasePage(self, BaseWindow, "Drink")
-        
+    """Drink page"""
+
+    def __init__(self, parent, basewindow):
+        tk.Frame.__init__(self, parent)  # Makes Tk Frame
+        BasePage(self, basewindow, "Drink")  # Creates instance of basepage
+
 
 class Dessert(tk.Frame):
-    def __init__(self, parent, BaseWindow):
-        tk.Frame.__init__(self,parent)
-        BasePage(self, BaseWindow, "Dessert")
-        
+    """ Dessert page"""
+
+    def __init__(self, parent, basewindow):
+        tk.Frame.__init__(self, parent)  # Makes Tk Frame
+        BasePage(self, basewindow, "Dessert")  # Creates instance of basepage
+
 
 class Quantity(tk.Frame):
-    def __init__(self, parent, BaseWindow):
-        tk.Frame.__init__(self,parent)
-        #BasePage(self, BaseWindow, "Quantity")
-       
-    def food_page(self, BaseWindow, food):
+    """Quantity page handles the input of data from the user"""
+
+    def __init__(self, parent, basewindow):
+        tk.Frame.__init__(self, parent)
+        # BasePage(self, basewindow, "Quantity")
+
+    def food_quantity(self, basewindow, item):
+        """This is called when an item is pressed and it creates the pop up
+        that take sthe users input"""
+
+        """This is basic pop up styling and management"""
         FONT = ("Arab", "18")
         self.cr_box = tk.Toplevel()
         self.cr_box.geometry("300x400")
         self.cr_box.title("Quantity")
         self.cr_box.grab_set()
         self.cr_box.protocol('WM_DELETE_WINDOW', partial(self.close_quantity))
-        
-        
-        self.cr_box.columnconfigure(0, weight=1)
-        for i in range(4):
-            self.cr_box.rowconfigure(i, weight=1)
 
-        self.tknum = tk.IntVar()
-        self.num = 0
-        self.food_label = tk.Label(self.cr_box, 
-                                   text=food,
+        self.cr_box.columnconfigure(0, weight=1)  # Allow Resizing
+        for i in range(4):
+            self.cr_box.rowconfigure(i, weight=1)  # Allow Resizing
+
+        self.tknum = tk.StringVar()  # This is a tkinter var for the GUI
+        self.quantity = 1  # Var allows me to use arrows for quantity selection
+        self.tknum.set(self.quantity)  # sets tknum = quantity
+
+        self.food_label = tk.Label(self.cr_box,
+                                   text=item,
                                    font=FONT,
                                    bg="#F0EFF4",
-                                   highlightthickness=0,)
-        
-        """self.num_label = tk.Label(self.cr_box, 
-                                  font=FONT,
-                                  text=self.num,
-                                  bg="#F0EFF4",
-                                  highlightthickness=0,)"""
-        
+                                   highlightthickness=0)
+
         def int_button_control(self, state):
+            """This alows the arowes to change the quantity"""
             if state == '+':
-                self.num = self.tknum.get()+1
-                self.tknum.set(self.num)
+                if self.entery_num(self.tknum):  # Validates the input
+                    self.quantity = int(self.tknum.get()) + 1
+                    self.tknum.set(self.quantity)
             if state == '-':
-                self.num = self.tknum.get()-1 
-                self.tknum.set(self.num)
-            
-                
-    
-        self.up = tk.Button(self.cr_box, 
+                if self.quantity > 1 and self.entery_num(self.tknum):  # Validates the input
+                    self.quantity = int(self.tknum.get()) - 1
+                    self.tknum.set(self.quantity)
+
+        """Button creation of arows and entry box"""
+        self.up = tk.Button(self.cr_box,
                             text="↑",
                             font=FONT,
                             bg="#F0EFF4",
                             highlightthickness=0,
-                            command=lambda:int_button_control(self,'+'))
-        
+                            command=lambda: int_button_control(self, '+'))
+
         self.down = tk.Button(self.cr_box,
                               text="↓",
                               font=FONT,
                               bg="#F0EFF4",
                               highlightthickness=0,
-                              command=lambda:int_button_control(self, '-'))
-        
-        
-        
-        self.entry = tk.Entry(self.cr_box, 
+                              command=lambda: int_button_control(self, '-'))
+
+        self.entry = tk.Entry(self.cr_box,
                               textvariable=self.tknum,
                               font=FONT,
                               bg="#F0EFF4",
                               highlightthickness=0)
-        
-        self.enter = tk.Button(self.cr_box, 
+
+        """This weird lambda is required as the Value error would
+        occur in the button thus tkinter callback and i cant put a try there"""
+
+        self.enter = tk.Button(self.cr_box,
                                text="Enter",
                                font=FONT,
                                bg="#F0EFF4",
                                height=2,
                                highlightthickness=0,
-                               command=lambda:(self.close_quantity(),
-                                               Cart.add_cart(BaseWindow.pages[Cart], BaseWindow, food, self.tknum.get())))
-        
+                               command=lambda: ((self.close_quantity(),
+                                                basewindow.pages[Cart].add_cart(basewindow,
+                                                                                item,
+                                                                                int(self.tknum.get())))
+                                                if self.entery_num(self.tknum) else print('')))
+
         self.food_label.grid(row=0, column=0, sticky="nsew")
         self.up.grid(row=1, column=0, sticky="nsew")
         self.entry.grid(row=2, column=0, sticky="nsew")
         self.down.grid(row=3, column=0, sticky="nsew")
         self.enter.grid(row=4, column=0, sticky="nsew")
-    
+
+    def entery_num(self, num):
+        """Validates the input is a positive number"""
+        try:
+            num = int(num.get())  # Turns string to int if error then not int
+            if num >= 1:  # Must be a positive number
+                return True
+            else:
+                self.tknum.set(1)  # if num - number it sets it to 1
+                self.quantity = 1  # if num - number it sets it to 1
+                messagebox.showerror("Error",  # Error message
+                                     "Please Enter a Positive Number!")
+                return False
+        except ValueError:
+            messagebox.showerror("Error",  # Error message
+                                 "Please Enter a Positive Number!")
+            return False
+
     def close_quantity(self):
-        self.cr_box.grab_release()  
-        self.cr_box.destroy() 
+        self.cr_box.grab_release()  # Sets focus back to main window
+        self.cr_box.destroy()  # closes pop up
+
 
 class Cart(tk.Frame):
-    def __init__(self, parent, BaseWindow):
-        tk.Frame.__init__(self,parent)
-        BasePage(self, BaseWindow, "Cart")
+    """Creates a cart page with empty cart"""
+
+    def __init__(self, parent, basewindow):
+        tk.Frame.__init__(self, parent)
+        BasePage(self, basewindow, "Cart")
         FONT = ("Arab", "18")
-        self.cart = {}
+        self.cart = {}  # Empty cart
         self.checkout = tk.Button(self.footer,
                                   font=FONT,
                                   bg="#F0EFF4",
                                   highlightthickness=0,
                                   text="Checkout",
-                                  command=lambda: Checkout_Reset(self))
+                                  command=lambda: CheckoutReset(self))
         self.checkout.grid(row=0, column=0, sticky="nsew")
-        
+
         self.local_menubox = 0
-        
-    def add_cart(self, BaseWindow, food, num):
+
+    def add_cart(self, basewindow, food, num):
         FONT = ("Arab", "18")
-        
-        BaseWindow.show_page(Cart)
-        
-        
+
+        basewindow.show_page(Cart)
+
         if food not in self.cart.keys():
             self.menubox.columnconfigure(0, weight=1)
-            #self.menubox.rowconfigure(self.local_menubox, weight=1)
-            self.cart.update({food : [tk.Button(self.menubox,
-                                      bg="#F0EFF4",
-                                      font=FONT,
-                                      highlightthickness=0,
-                                      text=f"{food} Quantity : {num}"), num]})
+            self.cart.update({food: [tk.Button(self.menubox,
+                                               bg="#F0EFF4",
+                                               font=FONT,
+                                               highlightthickness=0,
+                                               text=f"{food} Quantity : {num}"), num]})
             self.cart[food][0].grid(row=self.local_menubox, column=0, sticky="nsew")
-            self.local_menubox+=1
+            self.local_menubox += 1
         else:
-            num+=self.cart[food][1]
+            num += self.cart[food][1]
             self.cart[food][1] = num
             self.cart[food][0].config(text=f"{food} Quantity : {num}")
-            
-        #print(self.cart)
-        
-class Checkout_Reset():
+
+
+class CheckoutReset:
     def __init__(self, partner):
+        global used_id, all_orders
         self.cr_box = tk.Toplevel()
         self.cr_box.geometry("300x200")
         self.cr_box.title("Checkout")
         self.cr_box.grab_set()
         self.cr_box.protocol('WM_DELETE_WINDOW', partial(self.close_checkout, partner))
-        
-        self.id = randint(0,300)
+
+        self.id = randint(0, 300)
+        while True:
+            if len(used_id) == 300:
+                used_id = []
+                all_orders = []
+            if self.id not in used_id:
+                used_id.append(self.id)
+                break
+            else:
+                self.id = randint(0, 300)
+
         self.price = 0
-        
-        self.cr_box.Label = tk.Label(self.cr_box, 
-                                text=f"ID - {self.id}",
-                                font=("Arab", "18"),
-                                height = 2).pack(anchor='center')
+
+        self.cr_box.Label = tk.Label(self.cr_box,
+                                     text=f"ID - {self.id}",
+                                     font=("Arab", "18"),
+                                     height=2).pack(anchor='center')
         for obj in partner.cart:
             for name in item_data.keys():
                 if obj in item_data[name].keys():
-                    for i in range (partner.cart[obj][1]):
-                        self.price+=item_data[name][obj]["Price"]
+                    for i in range(partner.cart[obj][1]):
+                        self.price += item_data[name][obj]["Price"]
                     partner.cart[obj][0].destroy()
-                        
+
         tk.Label(self.cr_box,
                  text=f"Total Price - ${self.price}",
                  font=("Arab", "18"),
-                    height = 2).pack(anchor='center')
+                 height=2).pack(anchor='center')
 
     def close_checkout(self, partner):
         all_orders.append(partner.cart)
         partner.cart = {}
         print(all_orders)
-        self.cr_box.grab_release()  
-        self.cr_box.destroy() 
+        self.cr_box.grab_release()
+        self.cr_box.destroy()
 
-all_orders = []
-file = open("Items.json","r")
-item_data = json.load(file)
-file.close()
-root = BaseWindow()
-root.mainloop()
+
+if __name__ == "__main__":
+    used_id = []
+    all_orders = []
+    file = open("Items.json", "r")
+    item_data = json.load(file)
+    file.close()
+    root = BaseWindow()
+    root.mainloop()
