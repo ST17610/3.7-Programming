@@ -98,6 +98,7 @@ class BasePage:
                                 pady=20,
                                 command=lambda: basewindow.show_page(Cart))
 
+        # Puts all the buttons on the screen
         parent.food.grid(row=0, column=0, sticky="nsew")
         parent.drink.grid(row=1, column=0, sticky="nsew")
         parent.dessert.grid(row=2, column=0, sticky="nsew")
@@ -115,7 +116,8 @@ class BasePage:
                                             highlightthickness=0,
                                             text=f'{item} - Price: ${item_data[page][item]["Price"]}',
                                             command=lambda new_item=item: basewindow.pages[Quantity].food_quantity(basewindow,
-                                                                                                                   new_item)))
+                                                                                                                   new_item,
+                                                                                                                   1)))
                 parent.box[i].grid(row=i, column=0, sticky="nsew")
                 i += 1
 
@@ -151,7 +153,7 @@ class Quantity(tk.Frame):
         tk.Frame.__init__(self, parent)
         # BasePage(self, basewindow, "Quantity")
 
-    def food_quantity(self, basewindow, item):
+    def food_quantity(self, basewindow, item, quantity):
         """This is called when an item is pressed and it creates the pop up
         that take sthe users input"""
 
@@ -164,11 +166,11 @@ class Quantity(tk.Frame):
         self.cr_box.protocol('WM_DELETE_WINDOW', partial(self.close_quantity))
 
         self.cr_box.columnconfigure(0, weight=1)  # Allow Resizing
-        for i in range(4):
+        for i in range(5):
             self.cr_box.rowconfigure(i, weight=1)  # Allow Resizing
 
         self.tknum = tk.StringVar()  # This is a tkinter var for the GUI
-        self.quantity = 1  # Var allows me to use arrows for quantity selection
+        self.quantity = quantity  # Var allows me to use arrows for quantity selection
         self.tknum.set(self.quantity)  # sets tknum = quantity
 
         self.food_label = tk.Label(self.cr_box,
@@ -223,12 +225,21 @@ class Quantity(tk.Frame):
                                                                                 item,
                                                                                 int(self.tknum.get())))
                                                 if self.entery_num(self.tknum) else print('')))
-
+        self.del_item = tk.Button(self.cr_box,
+                                  text="DELETE",
+                                  font=FONT,
+                                  bg="#F0EFF4",
+                                  highlightthickness=0,
+                                  command=lambda: ((self.close_quantity(),
+                                                    basewindow.pages[Cart].del_cart(basewindow,
+                                                                                    item,))))
+        # Puts all the buttons on the screen
         self.food_label.grid(row=0, column=0, sticky="nsew")
         self.up.grid(row=1, column=0, sticky="nsew")
         self.entry.grid(row=2, column=0, sticky="nsew")
         self.down.grid(row=3, column=0, sticky="nsew")
         self.enter.grid(row=4, column=0, sticky="nsew")
+        self.del_item.grid(row=5, column=0, sticky="nsew")
 
     def entery_num(self, num):
         """Validates the input is a positive number"""
@@ -260,62 +271,79 @@ class Cart(tk.Frame):
         BasePage(self, basewindow, "Cart")
         FONT = ("Arab", "18")
         self.cart = {}  # Empty cart
-        self.checkout = tk.Button(self.footer,
+        self.checkout = tk.Button(self.footer,  # checkout button creation
                                   font=FONT,
                                   bg="#F0EFF4",
                                   highlightthickness=0,
                                   text="Checkout",
                                   command=lambda: CheckoutReset(self))
         self.checkout.grid(row=0, column=0, sticky="nsew")
-
         self.local_menubox = 0
 
     def add_cart(self, basewindow, food, num):
         FONT = ("Arab", "18")
 
-        basewindow.show_page(Cart)
+        basewindow.show_page(Cart)  # brings up quantity
 
         if food not in self.cart.keys():
+            """Check if this is a new item if it is then it creates a new
+            button and addes the item to the cart"""
             self.menubox.columnconfigure(0, weight=1)
             self.cart.update({food: [tk.Button(self.menubox,
                                                bg="#F0EFF4",
                                                font=FONT,
                                                highlightthickness=0,
-                                               text=f"{food} Quantity : {num}"), num]})
+                                               text=f"{food} Quantity : {num}",
+                                               command=lambda new_item=food: basewindow.pages[Quantity].food_quantity(basewindow,
+                                                                                                                      new_item,
+                                                                                                                      num)),
+                                     num]})
             self.cart[food][0].grid(row=self.local_menubox, column=0, sticky="nsew")
             self.local_menubox += 1
         else:
-            num += self.cart[food][1]
+            """Changes the Quantity of a already created item."""
             self.cart[food][1] = num
             self.cart[food][0].config(text=f"{food} Quantity : {num}")
+
+    def del_cart(self, basewindow, food):
+        """If the food is in the cart it deletes the item"""
+        if food in self.cart.keys():
+            self.cart[food][0].destroy()
+            self.cart.pop(food)
+        else:
+            pass
 
 
 class CheckoutReset:
     def __init__(self, partner):
         global used_id, all_orders
+
+        """This is basic pop up styling and management"""
         self.cr_box = tk.Toplevel()
         self.cr_box.geometry("300x200")
         self.cr_box.title("Checkout")
         self.cr_box.grab_set()
         self.cr_box.protocol('WM_DELETE_WINDOW', partial(self.close_checkout, partner))
 
+        """This is the limit of stored orders the program can handle"""
         self.id = randint(0, 300)
-        while True:
+        while True:  # Unique ID creation
             if len(used_id) == 300:
-                used_id = []
-                all_orders = []
+                used_id = []  # Empety the used IDs
+                all_orders = []  # Empety the orders
             if self.id not in used_id:
                 used_id.append(self.id)
                 break
             else:
                 self.id = randint(0, 300)
 
-        self.price = 0
+        self.price = 0  # Variable for price
 
         self.cr_box.Label = tk.Label(self.cr_box,
                                      text=f"ID - {self.id}",
                                      font=("Arab", "18"),
                                      height=2).pack(anchor='center')
+        print(partner.cart)
         for obj in partner.cart:
             for name in item_data.keys():
                 if obj in item_data[name].keys():
