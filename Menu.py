@@ -343,7 +343,7 @@ class CheckoutReset:
                                      text=f"ID - {self.id}",
                                      font=("Arab", "18"),
                                      height=2).pack(anchor='center')
-        print(partner.cart)
+
         for obj in partner.cart:
             for name in item_data.keys():
                 if obj in item_data[name].keys():
