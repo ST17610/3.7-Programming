@@ -195,13 +195,13 @@ class Quantity(tk.Frame):
         def int_button_control(self, state):
             """This alows the arowes to change the quantity"""
             if state == '+':
-                if self.quantity < 30 and self.entery_num(self.tknum):  # Validates the input
-                    self.quantity = int(self.tknum.get()) + 1
-                    self.tknum.set(self.quantity)
+                if self.entery_num(self.tknum): # Validates the input
+                    if int(self.tknum.get()) < 30: # Validates the input
+                        self.tknum.set(int(self.tknum.get()) + 1)
             if state == '-':
-                if self.quantity > 1 and self.entery_num(self.tknum):  # Validates the input
-                    self.quantity = int(self.tknum.get()) - 1
-                    self.tknum.set(self.quantity)
+                if self.entery_num(self.tknum):  # Validates the input
+                    if int(self.tknum.get()) > 1: # Validates the input
+                        self.tknum.set(int(self.tknum.get()) - 1)
 
         """Button creation of arows and entry box"""
         self.up = tk.Button(self.cr_box,
