@@ -1,6 +1,3 @@
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """This Program is a basic menu gui for a takeaway shop."""
 import tkinter as tk  # This is the GUI framework
 from tkinter import messagebox, PhotoImage  # This required to make the error message
@@ -62,12 +59,10 @@ class BasePage:
         parent.nav.grid(column=0, row=1, sticky="nsew")
         parent.menubox.grid(column=1, row=1, sticky="nsew")
         parent.footer.grid(column=0, row=3, columnspan=2, sticky="nsew")
-
         parent.columnconfigure(1, weight=1)  # Allow Resizing
         parent.rowconfigure(1, weight=1)  # Allow Resizing
 
         """Nav button creation"""
-        
         parent.food = tk.Button(parent.nav,
                                 text="Food",
                                 font=FONT,
@@ -183,24 +178,23 @@ class Quantity(tk.Frame):
                                    highlightthickness=0)
 
         for page in item_data.keys():  # Finding the right data for this label
-            if item in item_data[page].keys(): # Looping through to get item
-                self.food_description = tk.Label(self.cr_box, # Label for description creation
-                                           text=f'Description \n{item_data[page][item]["Description"]}',
-                                           font=FONT,
-                                           wraplength=400,
-                                           bg="#F0EFF4",
-                                           highlightthickness=0)
-
+            if item in item_data[page].keys():  # Looping through to get item
+                self.food_description = tk.Label(self.cr_box,  # Label for description creation
+                                                 text=f'Description \n{item_data[page][item]["Description"]}',
+                                                 font=FONT,
+                                                 wraplength=400,
+                                                 bg="#F0EFF4",
+                                                 highlightthickness=0)
 
         def int_button_control(self, state):
             """This alows the arowes to change the quantity"""
             if state == '+':
-                if self.entery_num(self.tknum): # Validates the input
-                    if int(self.tknum.get()) < 30: # Validates the input
+                if self.entery_num(self.tknum):  # Validates the input
+                    if int(self.tknum.get()) < 30:  # Validates the input
                         self.tknum.set(int(self.tknum.get()) + 1)
             if state == '-':
                 if self.entery_num(self.tknum):  # Validates the input
-                    if int(self.tknum.get()) > 1: # Validates the input
+                    if int(self.tknum.get()) > 1:  # Validates the input
                         self.tknum.set(int(self.tknum.get()) - 1)
 
         """Button creation of arows and entry box"""
