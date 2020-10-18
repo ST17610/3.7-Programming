@@ -1,8 +1,9 @@
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """This Program is a basic menu gui for a takeaway shop."""
 import tkinter as tk  # This is the GUI framework
-from tkinter import messagebox  # This required to make the error message
+from tkinter import messagebox, PhotoImage  # This required to make the error message
 from functools import partial  # This gives us access to higher level function
 from random import randint  # This is used to generate the ID's for customers
 import json  # This allows python to handle json files
@@ -15,7 +16,7 @@ class BaseWindow(tk.Tk):
     def __init__(self, *args, **kwargs):
         """Handles the creation of pages and tk window"""
         tk.Tk.__init__(self, *args, **kwargs)
-        self.geometry("1000x700")
+        self.minsize(1000, 700)
         self.title("Voorhoeve's Takeaway")
 
         """This is changing the settings of the window to allow resizing"""
@@ -66,6 +67,7 @@ class BasePage:
         parent.rowconfigure(1, weight=1)  # Allow Resizing
 
         """Nav button creation"""
+        
         parent.food = tk.Button(parent.nav,
                                 text="Food",
                                 font=FONT,
@@ -107,7 +109,7 @@ class BasePage:
         parent.box = []  # This list holds all the item buttons
         i = 0
         if page in item_data.keys():  # Finding the right data for this page
-            for item in item_data[page].keys():  # Looping through that data
+            for item in item_data[page].keys():  # Looping through to get item
                 parent.menubox.columnconfigure(0, weight=1)  # Allow Resizing
                 parent.menubox.rowconfigure(i, weight=1)  # Allow Resizing
                 parent.box.append(tk.Button(parent.menubox,  # Button creation
@@ -160,7 +162,8 @@ class Quantity(tk.Frame):
         """This is basic pop up styling and management"""
         FONT = ("Arab", "18")
         self.cr_box = tk.Toplevel()
-        self.cr_box.geometry("300x400")
+        self.cr_box.geometry("630x380")
+        self.cr_box.resizable(0, 0)
         self.cr_box.title("Quantity")
         self.cr_box.grab_set()
         self.cr_box.protocol('WM_DELETE_WINDOW', partial(self.close_quantity))
@@ -179,10 +182,20 @@ class Quantity(tk.Frame):
                                    bg="#F0EFF4",
                                    highlightthickness=0)
 
+        for page in item_data.keys():  # Finding the right data for this label
+            if item in item_data[page].keys(): # Looping through to get item
+                self.food_description = tk.Label(self.cr_box, # Label for description creation
+                                           text=f'Description \n{item_data[page][item]["Description"]}',
+                                           font=FONT,
+                                           wraplength=400,
+                                           bg="#F0EFF4",
+                                           highlightthickness=0)
+
+
         def int_button_control(self, state):
             """This alows the arowes to change the quantity"""
             if state == '+':
-                if self.entery_num(self.tknum):  # Validates the input
+                if self.quantity < 30 and self.entery_num(self.tknum):  # Validates the input
                     self.quantity = int(self.tknum.get()) + 1
                     self.tknum.set(self.quantity)
             if state == '-':
@@ -240,22 +253,25 @@ class Quantity(tk.Frame):
         self.down.grid(row=3, column=0, sticky="nsew")
         self.enter.grid(row=4, column=0, sticky="nsew")
         self.del_item.grid(row=5, column=0, sticky="nsew")
+        self.food_description.grid(row=0, column=1, rowspan=5, sticky="nsew")
 
     def entery_num(self, num):
         """Validates the input is a positive number"""
         try:
             num = int(num.get())  # Turns string to int if error then not int
-            if num >= 1:  # Must be a positive number
+            if num >= 1 and num <= 30:  # Must be a positive number
                 return True
             else:
                 self.tknum.set(1)  # if num - number it sets it to 1
                 self.quantity = 1  # if num - number it sets it to 1
                 messagebox.showerror("Error",  # Error message
-                                     "Please Enter a Positive Number!")
+                                     "Please Enter a Positive Number! 1~30")
                 return False
         except ValueError:
+            self.tknum.set(1)  # if num - number it sets it to 1
+            self.quantity = 1  # if num - number it sets it to 1
             messagebox.showerror("Error",  # Error message
-                                 "Please Enter a Positive Number!")
+                                 "Please Enter a Positive Number! 1~30")
             return False
 
     def close_quantity(self):
@@ -276,40 +292,40 @@ class Cart(tk.Frame):
                                   bg="#F0EFF4",
                                   highlightthickness=0,
                                   text="Checkout",
-                                  command=lambda: CheckoutReset(self))
+                                  command=lambda: CheckoutReset(self) if len(self.cart) != 0 else print(''))
         self.checkout.grid(row=0, column=0, sticky="nsew")
         self.local_menubox = 0
 
-    def add_cart(self, basewindow, food, num):
+    def add_cart(self, basewindow, item, num):
         FONT = ("Arab", "18")
 
         basewindow.show_page(Cart)  # brings up quantity
 
-        if food not in self.cart.keys():
+        if item not in self.cart.keys():
             """Check if this is a new item if it is then it creates a new
             button and addes the item to the cart"""
             self.menubox.columnconfigure(0, weight=1)
-            self.cart.update({food: [tk.Button(self.menubox,
+            self.cart.update({item: [tk.Button(self.menubox,
                                                bg="#F0EFF4",
                                                font=FONT,
                                                highlightthickness=0,
-                                               text=f"{food} Quantity : {num}",
-                                               command=lambda new_item=food: basewindow.pages[Quantity].food_quantity(basewindow,
+                                               text=f"{item} Quantity : {num}",
+                                               command=lambda new_item=item: basewindow.pages[Quantity].food_quantity(basewindow,
                                                                                                                       new_item,
                                                                                                                       num)),
                                      num]})
-            self.cart[food][0].grid(row=self.local_menubox, column=0, sticky="nsew")
+            self.cart[item][0].grid(row=self.local_menubox, column=0, sticky="nsew")
             self.local_menubox += 1
         else:
             """Changes the Quantity of a already created item."""
-            self.cart[food][1] = num
-            self.cart[food][0].config(text=f"{food} Quantity : {num}")
+            self.cart[item][1] = num
+            self.cart[item][0].config(text=f"{item} Quantity : {num}")
 
-    def del_cart(self, basewindow, food):
-        """If the food is in the cart it deletes the item"""
-        if food in self.cart.keys():
-            self.cart[food][0].destroy()
-            self.cart.pop(food)
+    def del_cart(self, basewindow, item):
+        """If the item is in the cart it deletes the item"""
+        if item in self.cart.keys():
+            self.cart[item][0].destroy()
+            self.cart.pop(item)
         else:
             pass
 
@@ -320,7 +336,7 @@ class CheckoutReset:
 
         """This is basic pop up styling and management"""
         self.cr_box = tk.Toplevel()
-        self.cr_box.geometry("300x200")
+        self.cr_box.minsize(230, 200)
         self.cr_box.title("Checkout")
         self.cr_box.grab_set()
         self.cr_box.protocol('WM_DELETE_WINDOW', partial(self.close_checkout, partner))
@@ -344,12 +360,16 @@ class CheckoutReset:
                                      font=("Arab", "18"),
                                      height=2).pack(anchor='center')
 
-        for obj in partner.cart:
-            for name in item_data.keys():
-                if obj in item_data[name].keys():
-                    for i in range(partner.cart[obj][1]):
-                        self.price += item_data[name][obj]["Price"]
-                    partner.cart[obj][0].destroy()
+        for item in partner.cart:
+            for page in item_data.keys():
+                if item in item_data[page].keys():
+                    self.price += item_data[page][item]["Price"]*partner.cart[item][1]
+                    tk.Label(self.cr_box,
+                             font=("Arab", "14"),
+                             text=f'{partner.cart[item][1]} X {item} ---- ${item_data[page][item]["Price"]}',
+                             bg="#F0EFF4",
+                             highlightthickness=0).pack()
+                    partner.cart[item][0].destroy()
 
         tk.Label(self.cr_box,
                  text=f"Total Price - ${self.price}",

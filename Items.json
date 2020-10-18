@@ -1,53 +1,44 @@
 {
-   "Food":{
-      "Burger":{
-         "ID":1,
-         "Price":5,
-         "Eta":4
-      },
-      "Pizza":{
-         "ID":2,
-         "Price":10,
-         "Eta":4
-      },
-      "Potato Salad":{
-         "ID":3,
-         "Price":5,
-         "Eta":4
-      }
-   },
-   "Drink":{
-      "Coke":{
-         "ID":1,
-         "Price":5,
-         "Eta":4
-      },
-      "Water":{
-         "ID":2,
-         "Price":1,
-         "Eta":4
-      },
-      "Coffee":{
-         "ID":3,
-         "Price":5,
-         "Eta":4
-      }
-   },
-   "Dessert":{
-      "Eclair":{
-         "ID":1,
-         "Price":5,
-         "Eta":4
-      },
-      "Tiramisu":{
-         "ID":2,
-         "Price":7,
-         "Eta":4
-      },
-      "Ice-Cream":{
-         "ID":3,
-         "Price":5,
-         "Eta":4
-      }
-   }
+  "Food": {
+    "Burger": {
+      "Description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non maximus ligula. Integer mollis ante dui, in tristique lectus ullamcorper ac.",
+      "Price": 5
+    },
+    "Pizza": {
+      "Description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non maximus ligula. Integer mollis ante dui, in tristique lectus ullamcorper ac.",
+      "Price": 10
+    },
+    "Potato Salad": {
+      "Description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non maximus ligula. Integer mollis ante dui, in tristique lectus ullamcorper ac.",
+      "Price": 5
+    }
+  },
+  "Drink": {
+    "Coffee": {
+      "Description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non maximus ligula. Integer mollis ante dui, in tristique lectus ullamcorper ac.",
+      "Price": 5
+    },
+    "Coke": {
+      "Description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non maximus ligula. Integer mollis ante dui, in tristique lectus ullamcorper ac.",
+      "Price": 5
+    },
+    "Water": {
+      "Description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non maximus ligula. Integer mollis ante dui, in tristique lectus ullamcorper ac.",
+      "Price": 1
+    }
+  },
+  "Dessert": {
+    "Eclair": {
+      "Description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non maximus ligula. Integer mollis ante dui, in tristique lectus ullamcorper ac.",
+      "Price": 5
+    },
+    "Ice-Cream": {
+      "Description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non maximus ligula. Integer mollis ante dui, in tristique lectus ullamcorper ac.",
+      "Price": 5
+    },
+    "Tiramisu": {
+      "Description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non maximus ligula. Integer mollis ante dui, in tristique lectus ullamcorper ac.",
+      "Price": 7
+    }
+  }
 }
