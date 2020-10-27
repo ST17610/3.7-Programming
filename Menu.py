@@ -332,10 +332,10 @@ class Cart(tk.Frame):
         # This updates the total on the cart page
         self.price = 0
         for item in self.cart:
-                for page in item_data.keys():
-                    if item in item_data[page].keys():
-                        self.price += item_data[page][item]["Price"]*self.cart[item][1]
-                        self.total.config(text=f"Total Price - ${self.price}")
+            for page in item_data.keys():
+                if item in item_data[page].keys():
+                    self.price += item_data[page][item]["Price"]*self.cart[item][1]
+                    self.total.config(text=f"Total Price - ${self.price}")
 
     def del_cart(self, basewindow, item):
         """If the item is in the cart it deletes the item"""
@@ -355,7 +355,7 @@ class CheckoutReset:
         self.cr_box.minsize(230, 200)
         self.cr_box.title("Checkout")
         self.cr_box.grab_set()  # Sets this to focus
-        self.cr_box.protocol('WM_DELETE_WINDOW',  # Function to run when closed 
+        self.cr_box.protocol('WM_DELETE_WINDOW',  # Function to run when closed
                              partial(self.close_checkout, partner, False))
 
         """This uses the os module to check if that file exists and if it does
@@ -367,9 +367,9 @@ class CheckoutReset:
         self.price = 0  # Variable for price
 
         self.cr_box.ID = tk.Label(self.cr_box,
-                                     text=f"ID - {self.order_id}",
-                                     font=("Arab", "18"),
-                                     height=2).pack(anchor='center')
+                                  text=f"ID - {self.order_id}",
+                                  font=("Arab", "18"),
+                                  height=2).pack(anchor='center')
 
         # This updates the total and creates the receipt
         for item in partner.cart:
@@ -382,24 +382,24 @@ class CheckoutReset:
                              highlightthickness=0).pack()
 
         # This creates the total label
-        tk.Label(self.cr_box, 
+        tk.Label(self.cr_box,
                  text=f"Total Price - ${self.price}",
                  font=("Arab", "18"),
                  height=2).pack(anchor='center')
 
         # This creates the confirmation button
         self.cr_box.confirm = tk.Button(self.cr_box,
-                                     text="Confirm",
-                                     font=("Arab", "18"),
-                                     command=lambda: self.close_checkout(partner, True),
-                                     height=2).pack(anchor='center')
+                                        text="Confirm",
+                                        font=("Arab", "18"),
+                                        command=lambda: self.close_checkout(partner, True),
+                                        height=2).pack(anchor='center')
 
     def close_checkout(self, partner, confirmed):
         """This checks if the person has confirmed their order and closed or
         has just close but wants to change their order and if confirmed save
         order to file and get ready for next customer"""
-        
-        if confirmed == True:
+
+        if confirmed:
             self.order = open(f"order{self.order_id}.txt", "w")  # create order file
             self.order.write(f"Order ID - {self.order_id}\n")
             partner.price = 0
@@ -413,7 +413,7 @@ class CheckoutReset:
 
 
 if __name__ == "__main__":
-    file = open("Items.json", "r")  # This reads the json file data 
+    file = open("Items.json", "r")  # This reads the json file data
     item_data = json.load(file)
     file.close()
     root = BaseWindow()
