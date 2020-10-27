@@ -4,6 +4,7 @@ from tkinter import messagebox, PhotoImage  # This required to make the error me
 from functools import partial  # This gives us access to higher level function
 from random import randint  # This is used to generate the ID's for customers
 import json  # This allows python to handle json files
+import os  # This gives us access to os tools
 
 
 class BaseWindow(tk.Tk):
@@ -152,7 +153,7 @@ class Quantity(tk.Frame):
 
     def food_quantity(self, basewindow, item, quantity):
         """This is called when an item is pressed and it creates the pop up
-        that take sthe users input"""
+        that take the user's input"""
 
         """This is basic pop up styling and management"""
         FONT = ("Arab", "18")
@@ -187,17 +188,17 @@ class Quantity(tk.Frame):
                                                  highlightthickness=0)
 
         def int_button_control(self, state):
-            """This alows the arowes to change the quantity"""
+            """This allows the arrows to change the quantity"""
             if state == '+':
-                if self.entery_num(self.tknum):  # Validates the input
+                if self.entry_num(self.tknum):  # Validates the input
                     if int(self.tknum.get()) < 30:  # Validates the input
                         self.tknum.set(int(self.tknum.get()) + 1)
             if state == '-':
-                if self.entery_num(self.tknum):  # Validates the input
+                if self.entry_num(self.tknum):  # Validates the input
                     if int(self.tknum.get()) > 1:  # Validates the input
                         self.tknum.set(int(self.tknum.get()) - 1)
 
-        """Button creation of arows and entry box"""
+        """Button creation of arrows and entry box"""
         self.up = tk.Button(self.cr_box,
                             text="↑",
                             font=FONT,
@@ -219,7 +220,7 @@ class Quantity(tk.Frame):
                               highlightthickness=0)
 
         """This weird lambda is required as the Value error would
-        occur in the button thus tkinter callback and i cant put a try there"""
+        occur in the button thus tkinter callback and I cant put a try there"""
 
         self.enter = tk.Button(self.cr_box,
                                text="Enter",
@@ -231,8 +232,8 @@ class Quantity(tk.Frame):
                                                 basewindow.pages[Cart].add_cart(basewindow,
                                                                                 item,
                                                                                 int(self.tknum.get())))
-                                                if self.entery_num(self.tknum) else print('')))
-        self.del_item = tk.Button(self.cr_box,
+                                                if self.entry_num(self.tknum) else print('')))
+        self.del_item = tk.Button(self.cr_box,  # This remove the item from cart
                                   text="DELETE",
                                   font=FONT,
                                   bg="#F0EFF4",
@@ -249,7 +250,7 @@ class Quantity(tk.Frame):
         self.del_item.grid(row=5, column=0, sticky="nsew")
         self.food_description.grid(row=0, column=1, rowspan=5, sticky="nsew")
 
-    def entery_num(self, num):
+    def entry_num(self, num):
         """Validates the input is a positive number"""
         try:
             num = int(num.get())  # Turns string to int if error then not int
@@ -281,23 +282,35 @@ class Cart(tk.Frame):
         BasePage(self, basewindow, "Cart")
         FONT = ("Arab", "18")
         self.cart = {}  # Empty cart
+        self.price = 0  # Initialize price var
+
+        self.total = tk.Label(self.footer,  # Making a total on the cart page
+                              font=FONT,
+                              bg="#3F88C5",
+                              text=f"Total Price - ${self.price}")
+
         self.checkout = tk.Button(self.footer,  # checkout button creation
                                   font=FONT,
                                   bg="#F0EFF4",
                                   highlightthickness=0,
                                   text="Checkout",
                                   command=lambda: CheckoutReset(self) if len(self.cart) != 0 else print(''))
+
+        # Puts all the buttons on the screen
         self.checkout.grid(row=0, column=0, sticky="nsew")
+        self.total.grid(row=0, column=1, sticky="nsew")
         self.local_menubox = 0
 
     def add_cart(self, basewindow, item, num):
+        """This is the function to add items to the cart"""
+
         FONT = ("Arab", "18")
 
         basewindow.show_page(Cart)  # brings up quantity
 
         if item not in self.cart.keys():
             """Check if this is a new item if it is then it creates a new
-            button and addes the item to the cart"""
+            button and added the item to the cart"""
             self.menubox.columnconfigure(0, weight=1)
             self.cart.update({item: [tk.Button(self.menubox,
                                                bg="#F0EFF4",
@@ -310,10 +323,19 @@ class Cart(tk.Frame):
                                      num]})
             self.cart[item][0].grid(row=self.local_menubox, column=0, sticky="nsew")
             self.local_menubox += 1
+
         else:
             """Changes the Quantity of a already created item."""
             self.cart[item][1] = num
             self.cart[item][0].config(text=f"{item} Quantity : {num}")
+
+        # This updates the total on the cart page
+        self.price = 0
+        for item in self.cart:
+                for page in item_data.keys():
+                    if item in item_data[page].keys():
+                        self.price += item_data[page][item]["Price"]*self.cart[item][1]
+                        self.total.config(text=f"Total Price - ${self.price}")
 
     def del_cart(self, basewindow, item):
         """If the item is in the cart it deletes the item"""
@@ -325,35 +347,31 @@ class Cart(tk.Frame):
 
 
 class CheckoutReset:
-    def __init__(self, partner):
-        global used_id, all_orders
+    """Creates the checkout pop up"""
 
+    def __init__(self, partner):
         """This is basic pop up styling and management"""
         self.cr_box = tk.Toplevel()
         self.cr_box.minsize(230, 200)
         self.cr_box.title("Checkout")
-        self.cr_box.grab_set()
-        self.cr_box.protocol('WM_DELETE_WINDOW', partial(self.close_checkout, partner))
+        self.cr_box.grab_set()  # Sets this to focus
+        self.cr_box.protocol('WM_DELETE_WINDOW',  # Function to run when closed 
+                             partial(self.close_checkout, partner, False))
 
-        """This is the limit of stored orders the program can handle"""
-        self.id = randint(0, 300)
-        while True:  # Unique ID creation
-            if len(used_id) == 300:
-                used_id = []  # Empety the used IDs
-                all_orders = []  # Empety the orders
-            if self.id not in used_id:
-                used_id.append(self.id)
-                break
-            else:
-                self.id = randint(0, 300)
+        """This uses the os module to check if that file exists and if it does
+        it creates a file with the same name but a new iteration"""
+        self.order_id = 1
+        while os.path.exists(f"order{self.order_id}.txt"):
+            self.order_id += 1
 
         self.price = 0  # Variable for price
 
-        self.cr_box.Label = tk.Label(self.cr_box,
-                                     text=f"ID - {self.id}",
+        self.cr_box.ID = tk.Label(self.cr_box,
+                                     text=f"ID - {self.order_id}",
                                      font=("Arab", "18"),
                                      height=2).pack(anchor='center')
 
+        # This updates the total and creates the receipt
         for item in partner.cart:
             for page in item_data.keys():
                 if item in item_data[page].keys():
@@ -361,28 +379,42 @@ class CheckoutReset:
                     tk.Label(self.cr_box,
                              font=("Arab", "14"),
                              text=f'{partner.cart[item][1]} X {item} ---- ${item_data[page][item]["Price"]}',
-                             bg="#F0EFF4",
                              highlightthickness=0).pack()
-                    partner.cart[item][0].destroy()
 
-        tk.Label(self.cr_box,
+        # This creates the total label
+        tk.Label(self.cr_box, 
                  text=f"Total Price - ${self.price}",
                  font=("Arab", "18"),
                  height=2).pack(anchor='center')
 
-    def close_checkout(self, partner):
-        all_orders.append(partner.cart)
-        partner.cart = {}
-        print(all_orders)
-        self.cr_box.grab_release()
+        # This creates the confirmation button
+        self.cr_box.confirm = tk.Button(self.cr_box,
+                                     text="Confirm",
+                                     font=("Arab", "18"),
+                                     command=lambda: self.close_checkout(partner, True),
+                                     height=2).pack(anchor='center')
+
+    def close_checkout(self, partner, confirmed):
+        """This checks if the person has confirmed their order and closed or
+        has just close but wants to change their order and if confirmed save
+        order to file and get ready for next customer"""
+        
+        if confirmed == True:
+            self.order = open(f"order{self.order_id}.txt", "w")  # create order file
+            self.order.write(f"Order ID - {self.order_id}\n")
+            partner.price = 0
+            partner.total.config(text=f"Total Price - ${partner.price}")
+            for i in partner.cart:
+                self.order.write(f"{i} -- {partner.cart[i][1]}\n")
+                partner.cart[i][0].destroy()  # wipe this order for next user
+            partner.cart = {}
+        self.cr_box.grab_release()  # Gives back focus to main program
         self.cr_box.destroy()
 
 
 if __name__ == "__main__":
-    used_id = []
-    all_orders = []
-    file = open("Items.json", "r")
+    file = open("Items.json", "r")  # This reads the json file data 
     item_data = json.load(file)
     file.close()
     root = BaseWindow()
-    root.mainloop()
+    root.mainloop()  # This starts the gui of the program
