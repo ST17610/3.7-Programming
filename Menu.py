@@ -344,6 +344,16 @@ class Cart(tk.Frame):
             self.cart.pop(item)
         else:
             pass
+        # This updates the total on the cart page
+        self.price = 0
+        if  len( self.cart) > 0:
+            for item in self.cart:
+                for page in item_data.keys():
+                    if item in item_data[page].keys():
+                        self.price += item_data[page][item]["Price"]*self.cart[item][1]
+                        self.total.config(text=f"Total Price - ${self.price}")
+        else:
+            self.total.config(text=f"Total Price - ${self.price}")
 
 
 class CheckoutReset:
